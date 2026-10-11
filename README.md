@@ -39,7 +39,8 @@ CardioLens/
 ├── tests/                  # pytest smoke tests
 ├── docs/                   # submission documentation
 ├── requirements.txt        # one venv shared by ml/ and backend/
-└── setup.sh                # one-shot macOS setup
+├── setup.sh                # one-shot macOS setup
+└── start.sh                # starts both servers with one command
 ```
 
 ## Setup 
@@ -52,6 +53,14 @@ Installs Python 3.11 + Node via Homebrew if missing, creates `.venv`, installs P
 
 ## Run
 
+```bash
+./start.sh
+```
+Starts the API (port 8000) and the UI (port 5173) together, trains the models first if none are
+saved, waits until predictions are ready, then opens http://localhost:5173. Ctrl+C stops both.
+Use `./start.sh --no-open` to skip opening the browser.
+
+To run the servers separately instead:
 ```bash
 # terminal 1 — API on :8000
 source .venv/bin/activate
