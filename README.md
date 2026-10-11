@@ -11,14 +11,22 @@ Multimodal AI Hackathon 2026, Track A.
 ```
 CardioLens/
 ├── ml/                     # data, preprocessing, training, SHAP
-│   ├── config.py           # targets, leakage columns, paths (single source of truth)
+│   ├── config.py           # targets, leakage columns, CV settings, paths
+│   ├── features.py         # registry of the 54 inputs (kind, group, unit, levels) + leakage guard
 │   ├── data_loader.py      # raw xlsx -> DataFrame (+ value fixes)
-│   ├── inspect_dataset.py  # Task #2 dataset report
-│   ├── preprocess.py       # Task #3
-│   ├── train.py            # Task #4
-│   ├── explain.py          # Task #5
+│   ├── preprocess.py       # ColumnTransformer built from the registry
+│   ├── estimators.py       # candidate models + per-target pipeline
+│   ├── evaluation.py       # repeated stratified CV, selection, out-of-fold predictions
+│   ├── calibration.py      # Platt scaling
+│   ├── risk_model.py       # deployable unit: pipeline + calibrator
+│   ├── explain.py          # SHAP in probability units, folded back to clinical features
+│   ├── artifacts.py        # save/load models, manifest, SHAP background
+│   ├── reporting.py        # metrics.md/json + figures
+│   ├── train.py            # entry point: python -m ml.train
+│   ├── inspect_dataset.py  # dataset report
 │   ├── data/raw/           # UCI #411 Extension of Z-Alizadeh Sani (xlsx + original zip)
-│   └── models/             # saved pipelines (.joblib)
+│   ├── models/             # {cad,lad,lcx,rca}.joblib, manifest.json, shap_background.csv
+│   └── reports/            # metrics.md, metrics.json, ROC / calibration / importance figures
 ├── backend/                # FastAPI (main.py, schemas.py, inference.py)
 ├── frontend/               # Vite + React + React Three Fiber
 │   └── src/{components,api,config}
@@ -50,9 +58,28 @@ cd frontend && npm run dev
 
 Other commands (from the project root, venv active):
 ```bash
+python -m ml.train             # retrain all 4 models + regenerate ml/reports (~2 min)
 python -m ml.inspect_dataset   # dataset report
-pytest -q tests                # smoke tests
+pytest -q tests                # test suite
 ```
+
+## Models
+
+For each target (CAD, LAD, LCX, RCA), Logistic Regression, Random Forest and Gradient Boosting are
+compared under repeated stratified 5-fold CV (5 repeats). The model with the highest ROC-AUC is
+refitted on all 303 patients, then wrapped with a Platt calibrator fitted on its out-of-fold
+predictions so that predicted probabilities match observed frequencies (they drive the 3D colours).
+Each target is saved as one self-contained `RiskModel` (preprocessing + classifier + calibrator).
+
+| Target | Model | ROC-AUC (CV) | Brier (raw → calibrated) |
+|---|---|---|---|
+| Overall CAD | Random Forest | 0.923 ± 0.037 | 0.116 → 0.100 |
+| LAD | Random Forest | 0.852 ± 0.047 | 0.164 → 0.152 |
+| LCX | Random Forest | 0.729 ± 0.065 | 0.207 → 0.206 |
+| RCA | Logistic Regression | 0.728 ± 0.055 | 0.214 → 0.205 |
+
+Full tables, per-model comparisons and figures: `ml/reports/`. SHAP explanations are reported in
+probability units (a contribution of +0.12 = +12 percentage points of risk) for every model type.
 
 ## Dataset notes (UCI #411, 303 rows × 59 columns, no missing values)
 

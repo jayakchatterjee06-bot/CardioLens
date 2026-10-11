@@ -1,0 +1,1056 @@
+{
+  "schema_version": 1,
+  "trained_at": "2026-10-11T13:25:19+00:00",
+  "environment": {
+    "python": "3.11.15",
+    "scikit_learn": "1.9.1",
+    "shap": "0.51.0"
+  },
+  "dataset": {
+    "name": "UCI Extension of Z-Alizadeh Sani (id 411)",
+    "rows": 303
+  },
+  "validation": {
+    "scheme": "RepeatedStratifiedKFold",
+    "n_splits": 5,
+    "n_repeats": 5,
+    "selection_metric": "roc_auc",
+    "random_state": 42
+  },
+  "decision_threshold": 0.5,
+  "targets": {
+    "cad": {
+      "display_name": "Overall CAD",
+      "column": "Cath",
+      "positive_label": "CAD",
+      "model": "random_forest",
+      "artifact": "cad.joblib",
+      "calibration": {
+        "method": "platt",
+        "slope": 2.266,
+        "intercept": -0.74065
+      },
+      "cv_metrics": {
+        "accuracy": {
+          "mean": 0.8568,
+          "std": 0.0427
+        },
+        "precision": {
+          "mean": 0.8637,
+          "std": 0.0334
+        },
+        "recall": {
+          "mean": 0.9499,
+          "std": 0.0358
+        },
+        "f1": {
+          "mean": 0.9043,
+          "std": 0.0286
+        },
+        "roc_auc": {
+          "mean": 0.9232,
+          "std": 0.037
+        },
+        "brier": {
+          "mean": 0.1153,
+          "std": 0.0138
+        }
+      },
+      "oof_metrics_calibrated": {
+        "accuracy": 0.8713,
+        "precision": 0.8933,
+        "recall": 0.9306,
+        "f1": 0.9116,
+        "roc_auc": 0.915,
+        "brier": 0.1004
+      },
+      "global_importance": [
+        {
+          "feature": "Typical Chest Pain",
+          "label": "Typical chest pain",
+          "mean_abs_shap": 0.11298
+        },
+        {
+          "feature": "Atypical",
+          "label": "Atypical chest pain",
+          "mean_abs_shap": 0.05448
+        },
+        {
+          "feature": "Age",
+          "label": "Age",
+          "mean_abs_shap": 0.05227
+        },
+        {
+          "feature": "EF-TTE",
+          "label": "Ejection fraction (TTE)",
+          "mean_abs_shap": 0.03649
+        },
+        {
+          "feature": "Region RWMA",
+          "label": "Regions with wall-motion abnormality",
+          "mean_abs_shap": 0.0353
+        },
+        {
+          "feature": "HTN",
+          "label": "Hypertension",
+          "mean_abs_shap": 0.02744
+        },
+        {
+          "feature": "FBS",
+          "label": "Fasting blood sugar",
+          "mean_abs_shap": 0.02614
+        },
+        {
+          "feature": "TG",
+          "label": "Triglycerides",
+          "mean_abs_shap": 0.02357
+        },
+        {
+          "feature": "BP",
+          "label": "Blood pressure",
+          "mean_abs_shap": 0.01934
+        },
+        {
+          "feature": "ESR",
+          "label": "ESR",
+          "mean_abs_shap": 0.01856
+        },
+        {
+          "feature": "Tinversion",
+          "label": "T-wave inversion",
+          "mean_abs_shap": 0.01619
+        },
+        {
+          "feature": "Nonanginal",
+          "label": "Non-anginal chest pain",
+          "mean_abs_shap": 0.01485
+        },
+        {
+          "feature": "DM",
+          "label": "Diabetes mellitus",
+          "mean_abs_shap": 0.01313
+        },
+        {
+          "feature": "BMI",
+          "label": "BMI",
+          "mean_abs_shap": 0.01202
+        },
+        {
+          "feature": "K",
+          "label": "Potassium",
+          "mean_abs_shap": 0.01082
+        }
+      ]
+    },
+    "lad": {
+      "display_name": "Left Anterior Descending",
+      "column": "LAD",
+      "positive_label": "Stenotic",
+      "model": "random_forest",
+      "artifact": "lad.joblib",
+      "calibration": {
+        "method": "platt",
+        "slope": 2.01747,
+        "intercept": -0.23096
+      },
+      "cv_metrics": {
+        "accuracy": {
+          "mean": 0.7855,
+          "std": 0.0484
+        },
+        "precision": {
+          "mean": 0.7772,
+          "std": 0.0469
+        },
+        "recall": {
+          "mean": 0.8929,
+          "std": 0.0594
+        },
+        "f1": {
+          "mean": 0.8294,
+          "std": 0.0387
+        },
+        "roc_auc": {
+          "mean": 0.8525,
+          "std": 0.0468
+        },
+        "brier": {
+          "mean": 0.1657,
+          "std": 0.0137
+        }
+      },
+      "oof_metrics_calibrated": {
+        "accuracy": 0.7888,
+        "precision": 0.7958,
+        "recall": 0.8588,
+        "f1": 0.8261,
+        "roc_auc": 0.8506,
+        "brier": 0.1518
+      },
+      "global_importance": [
+        {
+          "feature": "Typical Chest Pain",
+          "label": "Typical chest pain",
+          "mean_abs_shap": 0.11143
+        },
+        {
+          "feature": "EF-TTE",
+          "label": "Ejection fraction (TTE)",
+          "mean_abs_shap": 0.06382
+        },
+        {
+          "feature": "Region RWMA",
+          "label": "Regions with wall-motion abnormality",
+          "mean_abs_shap": 0.05996
+        },
+        {
+          "feature": "Age",
+          "label": "Age",
+          "mean_abs_shap": 0.05509
+        },
+        {
+          "feature": "Atypical",
+          "label": "Atypical chest pain",
+          "mean_abs_shap": 0.04728
+        },
+        {
+          "feature": "ESR",
+          "label": "ESR",
+          "mean_abs_shap": 0.02711
+        },
+        {
+          "feature": "Lymph",
+          "label": "Lymphocytes",
+          "mean_abs_shap": 0.02354
+        },
+        {
+          "feature": "TG",
+          "label": "Triglycerides",
+          "mean_abs_shap": 0.01968
+        },
+        {
+          "feature": "Neut",
+          "label": "Neutrophils",
+          "mean_abs_shap": 0.01863
+        },
+        {
+          "feature": "Tinversion",
+          "label": "T-wave inversion",
+          "mean_abs_shap": 0.01754
+        },
+        {
+          "feature": "PR",
+          "label": "Pulse rate",
+          "mean_abs_shap": 0.0171
+        },
+        {
+          "feature": "HTN",
+          "label": "Hypertension",
+          "mean_abs_shap": 0.01578
+        },
+        {
+          "feature": "WBC",
+          "label": "White blood cells",
+          "mean_abs_shap": 0.01567
+        },
+        {
+          "feature": "BP",
+          "label": "Blood pressure",
+          "mean_abs_shap": 0.01528
+        },
+        {
+          "feature": "BMI",
+          "label": "BMI",
+          "mean_abs_shap": 0.0152
+        }
+      ]
+    },
+    "lcx": {
+      "display_name": "Left Circumflex",
+      "column": "LCX",
+      "positive_label": "Stenotic",
+      "model": "random_forest",
+      "artifact": "lcx.joblib",
+      "calibration": {
+        "method": "platt",
+        "slope": 1.53269,
+        "intercept": 0.19132
+      },
+      "cv_metrics": {
+        "accuracy": {
+          "mean": 0.6757,
+          "std": 0.0558
+        },
+        "precision": {
+          "mean": 0.6566,
+          "std": 0.1368
+        },
+        "recall": {
+          "mean": 0.3608,
+          "std": 0.102
+        },
+        "f1": {
+          "mean": 0.4617,
+          "std": 0.1132
+        },
+        "roc_auc": {
+          "mean": 0.7286,
+          "std": 0.0651
+        },
+        "brier": {
+          "mean": 0.2066,
+          "std": 0.0145
+        }
+      },
+      "oof_metrics_calibrated": {
+        "accuracy": 0.6964,
+        "precision": 0.6517,
+        "recall": 0.4874,
+        "f1": 0.5577,
+        "roc_auc": 0.7226,
+        "brier": 0.2064
+      },
+      "global_importance": [
+        {
+          "feature": "Age",
+          "label": "Age",
+          "mean_abs_shap": 0.07167
+        },
+        {
+          "feature": "Typical Chest Pain",
+          "label": "Typical chest pain",
+          "mean_abs_shap": 0.05342
+        },
+        {
+          "feature": "PLT",
+          "label": "Platelets",
+          "mean_abs_shap": 0.03496
+        },
+        {
+          "feature": "CR",
+          "label": "Creatinine",
+          "mean_abs_shap": 0.03455
+        },
+        {
+          "feature": "TG",
+          "label": "Triglycerides",
+          "mean_abs_shap": 0.03338
+        },
+        {
+          "feature": "FBS",
+          "label": "Fasting blood sugar",
+          "mean_abs_shap": 0.02717
+        },
+        {
+          "feature": "Length",
+          "label": "Height",
+          "mean_abs_shap": 0.02042
+        },
+        {
+          "feature": "BP",
+          "label": "Blood pressure",
+          "mean_abs_shap": 0.02028
+        },
+        {
+          "feature": "Na",
+          "label": "Sodium",
+          "mean_abs_shap": 0.01924
+        },
+        {
+          "feature": "LDL",
+          "label": "LDL cholesterol",
+          "mean_abs_shap": 0.01646
+        },
+        {
+          "feature": "ESR",
+          "label": "ESR",
+          "mean_abs_shap": 0.01622
+        },
+        {
+          "feature": "BUN",
+          "label": "Blood urea nitrogen",
+          "mean_abs_shap": 0.01559
+        },
+        {
+          "feature": "HB",
+          "label": "Hemoglobin",
+          "mean_abs_shap": 0.01441
+        },
+        {
+          "feature": "Lymph",
+          "label": "Lymphocytes",
+          "mean_abs_shap": 0.01361
+        },
+        {
+          "feature": "BMI",
+          "label": "BMI",
+          "mean_abs_shap": 0.01287
+        }
+      ]
+    },
+    "rca": {
+      "display_name": "Right Coronary Artery",
+      "column": "RCA",
+      "positive_label": "Stenotic",
+      "model": "logistic_regression",
+      "artifact": "rca.joblib",
+      "calibration": {
+        "method": "platt",
+        "slope": 0.54316,
+        "intercept": -0.17562
+      },
+      "cv_metrics": {
+        "accuracy": {
+          "mean": 0.6693,
+          "std": 0.0484
+        },
+        "precision": {
+          "mean": 0.5718,
+          "std": 0.0744
+        },
+        "recall": {
+          "mean": 0.4809,
+          "std": 0.1077
+        },
+        "f1": {
+          "mean": 0.518,
+          "std": 0.0876
+        },
+        "roc_auc": {
+          "mean": 0.7285,
+          "std": 0.0551
+        },
+        "brier": {
+          "mean": 0.2089,
+          "std": 0.0248
+        }
+      },
+      "oof_metrics_calibrated": {
+        "accuracy": 0.6568,
+        "precision": 0.5658,
+        "recall": 0.3772,
+        "f1": 0.4526,
+        "roc_auc": 0.7117,
+        "brier": 0.2055
+      },
+      "global_importance": [
+        {
+          "feature": "DM",
+          "label": "Diabetes mellitus",
+          "mean_abs_shap": 0.055
+        },
+        {
+          "feature": "Age",
+          "label": "Age",
+          "mean_abs_shap": 0.0487
+        },
+        {
+          "feature": "Sex",
+          "label": "Sex (male)",
+          "mean_abs_shap": 0.04249
+        },
+        {
+          "feature": "Function Class",
+          "label": "Functional class",
+          "mean_abs_shap": 0.03752
+        },
+        {
+          "feature": "Dyspnea",
+          "label": "Dyspnea",
+          "mean_abs_shap": 0.03625
+        },
+        {
+          "feature": "ESR",
+          "label": "ESR",
+          "mean_abs_shap": 0.03333
+        },
+        {
+          "feature": "Typical Chest Pain",
+          "label": "Typical chest pain",
+          "mean_abs_shap": 0.03066
+        },
+        {
+          "feature": "Neut",
+          "label": "Neutrophils",
+          "mean_abs_shap": 0.02875
+        },
+        {
+          "feature": "Weight",
+          "label": "Weight",
+          "mean_abs_shap": 0.02667
+        },
+        {
+          "feature": "TG",
+          "label": "Triglycerides",
+          "mean_abs_shap": 0.02558
+        },
+        {
+          "feature": "BUN",
+          "label": "Blood urea nitrogen",
+          "mean_abs_shap": 0.02548
+        },
+        {
+          "feature": "HDL",
+          "label": "HDL cholesterol",
+          "mean_abs_shap": 0.01885
+        },
+        {
+          "feature": "Region RWMA",
+          "label": "Regions with wall-motion abnormality",
+          "mean_abs_shap": 0.01853
+        },
+        {
+          "feature": "K",
+          "label": "Potassium",
+          "mean_abs_shap": 0.017
+        },
+        {
+          "feature": "VHD",
+          "label": "Valvular heart disease",
+          "mean_abs_shap": 0.01649
+        }
+      ]
+    }
+  },
+  "features": [
+    {
+      "name": "Age",
+      "label": "Age",
+      "kind": "continuous",
+      "group": "demographic",
+      "unit": "years",
+      "categories": []
+    },
+    {
+      "name": "Weight",
+      "label": "Weight",
+      "kind": "continuous",
+      "group": "demographic",
+      "unit": "kg",
+      "categories": []
+    },
+    {
+      "name": "Length",
+      "label": "Height",
+      "kind": "continuous",
+      "group": "demographic",
+      "unit": "cm",
+      "categories": []
+    },
+    {
+      "name": "Sex",
+      "label": "Sex (male)",
+      "kind": "binary",
+      "group": "demographic",
+      "unit": "",
+      "categories": [
+        "Female",
+        "Male"
+      ]
+    },
+    {
+      "name": "BMI",
+      "label": "BMI",
+      "kind": "continuous",
+      "group": "demographic",
+      "unit": "kg/m²",
+      "categories": []
+    },
+    {
+      "name": "DM",
+      "label": "Diabetes mellitus",
+      "kind": "binary",
+      "group": "history",
+      "unit": "",
+      "categories": [
+        0,
+        1
+      ]
+    },
+    {
+      "name": "HTN",
+      "label": "Hypertension",
+      "kind": "binary",
+      "group": "history",
+      "unit": "",
+      "categories": [
+        0,
+        1
+      ]
+    },
+    {
+      "name": "Current Smoker",
+      "label": "Current smoker",
+      "kind": "binary",
+      "group": "history",
+      "unit": "",
+      "categories": [
+        0,
+        1
+      ]
+    },
+    {
+      "name": "EX-Smoker",
+      "label": "Ex-smoker",
+      "kind": "binary",
+      "group": "history",
+      "unit": "",
+      "categories": [
+        0,
+        1
+      ]
+    },
+    {
+      "name": "FH",
+      "label": "Family history of CAD",
+      "kind": "binary",
+      "group": "history",
+      "unit": "",
+      "categories": [
+        0,
+        1
+      ]
+    },
+    {
+      "name": "Obesity",
+      "label": "Obesity",
+      "kind": "binary",
+      "group": "history",
+      "unit": "",
+      "categories": [
+        "N",
+        "Y"
+      ]
+    },
+    {
+      "name": "CRF",
+      "label": "Chronic renal failure",
+      "kind": "binary",
+      "group": "history",
+      "unit": "",
+      "categories": [
+        "N",
+        "Y"
+      ]
+    },
+    {
+      "name": "CVA",
+      "label": "Prior stroke (CVA)",
+      "kind": "binary",
+      "group": "history",
+      "unit": "",
+      "categories": [
+        "N",
+        "Y"
+      ]
+    },
+    {
+      "name": "Airway disease",
+      "label": "Airway disease",
+      "kind": "binary",
+      "group": "history",
+      "unit": "",
+      "categories": [
+        "N",
+        "Y"
+      ]
+    },
+    {
+      "name": "Thyroid Disease",
+      "label": "Thyroid disease",
+      "kind": "binary",
+      "group": "history",
+      "unit": "",
+      "categories": [
+        "N",
+        "Y"
+      ]
+    },
+    {
+      "name": "CHF",
+      "label": "Congestive heart failure",
+      "kind": "binary",
+      "group": "history",
+      "unit": "",
+      "categories": [
+        "N",
+        "Y"
+      ]
+    },
+    {
+      "name": "DLP",
+      "label": "Dyslipidemia",
+      "kind": "binary",
+      "group": "history",
+      "unit": "",
+      "categories": [
+        "N",
+        "Y"
+      ]
+    },
+    {
+      "name": "BP",
+      "label": "Blood pressure",
+      "kind": "continuous",
+      "group": "examination",
+      "unit": "mmHg",
+      "categories": []
+    },
+    {
+      "name": "PR",
+      "label": "Pulse rate",
+      "kind": "continuous",
+      "group": "examination",
+      "unit": "bpm",
+      "categories": []
+    },
+    {
+      "name": "Edema",
+      "label": "Edema",
+      "kind": "binary",
+      "group": "examination",
+      "unit": "",
+      "categories": [
+        0,
+        1
+      ]
+    },
+    {
+      "name": "Weak Peripheral Pulse",
+      "label": "Weak peripheral pulse",
+      "kind": "binary",
+      "group": "examination",
+      "unit": "",
+      "categories": [
+        "N",
+        "Y"
+      ]
+    },
+    {
+      "name": "Lung rales",
+      "label": "Lung rales",
+      "kind": "binary",
+      "group": "examination",
+      "unit": "",
+      "categories": [
+        "N",
+        "Y"
+      ]
+    },
+    {
+      "name": "Systolic Murmur",
+      "label": "Systolic murmur",
+      "kind": "binary",
+      "group": "examination",
+      "unit": "",
+      "categories": [
+        "N",
+        "Y"
+      ]
+    },
+    {
+      "name": "Diastolic Murmur",
+      "label": "Diastolic murmur",
+      "kind": "binary",
+      "group": "examination",
+      "unit": "",
+      "categories": [
+        "N",
+        "Y"
+      ]
+    },
+    {
+      "name": "Typical Chest Pain",
+      "label": "Typical chest pain",
+      "kind": "binary",
+      "group": "examination",
+      "unit": "",
+      "categories": [
+        0,
+        1
+      ]
+    },
+    {
+      "name": "Dyspnea",
+      "label": "Dyspnea",
+      "kind": "binary",
+      "group": "examination",
+      "unit": "",
+      "categories": [
+        "N",
+        "Y"
+      ]
+    },
+    {
+      "name": "Function Class",
+      "label": "Functional class",
+      "kind": "ordinal",
+      "group": "examination",
+      "unit": "",
+      "categories": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    {
+      "name": "Atypical",
+      "label": "Atypical chest pain",
+      "kind": "binary",
+      "group": "examination",
+      "unit": "",
+      "categories": [
+        "N",
+        "Y"
+      ]
+    },
+    {
+      "name": "Nonanginal",
+      "label": "Non-anginal chest pain",
+      "kind": "binary",
+      "group": "examination",
+      "unit": "",
+      "categories": [
+        "N",
+        "Y"
+      ]
+    },
+    {
+      "name": "LowTH Ang",
+      "label": "Low-threshold angina",
+      "kind": "binary",
+      "group": "examination",
+      "unit": "",
+      "categories": [
+        "N",
+        "Y"
+      ]
+    },
+    {
+      "name": "Q Wave",
+      "label": "Q wave",
+      "kind": "binary",
+      "group": "ecg",
+      "unit": "",
+      "categories": [
+        0,
+        1
+      ]
+    },
+    {
+      "name": "St Elevation",
+      "label": "ST elevation",
+      "kind": "binary",
+      "group": "ecg",
+      "unit": "",
+      "categories": [
+        0,
+        1
+      ]
+    },
+    {
+      "name": "St Depression",
+      "label": "ST depression",
+      "kind": "binary",
+      "group": "ecg",
+      "unit": "",
+      "categories": [
+        0,
+        1
+      ]
+    },
+    {
+      "name": "Tinversion",
+      "label": "T-wave inversion",
+      "kind": "binary",
+      "group": "ecg",
+      "unit": "",
+      "categories": [
+        0,
+        1
+      ]
+    },
+    {
+      "name": "LVH",
+      "label": "LV hypertrophy",
+      "kind": "binary",
+      "group": "ecg",
+      "unit": "",
+      "categories": [
+        "N",
+        "Y"
+      ]
+    },
+    {
+      "name": "Poor R Progression",
+      "label": "Poor R-wave progression",
+      "kind": "binary",
+      "group": "ecg",
+      "unit": "",
+      "categories": [
+        "N",
+        "Y"
+      ]
+    },
+    {
+      "name": "BBB",
+      "label": "Bundle branch block",
+      "kind": "nominal",
+      "group": "ecg",
+      "unit": "",
+      "categories": [
+        "N",
+        "LBBB",
+        "RBBB"
+      ]
+    },
+    {
+      "name": "FBS",
+      "label": "Fasting blood sugar",
+      "kind": "continuous",
+      "group": "laboratory",
+      "unit": "mg/dL",
+      "categories": []
+    },
+    {
+      "name": "CR",
+      "label": "Creatinine",
+      "kind": "continuous",
+      "group": "laboratory",
+      "unit": "mg/dL",
+      "categories": []
+    },
+    {
+      "name": "TG",
+      "label": "Triglycerides",
+      "kind": "continuous",
+      "group": "laboratory",
+      "unit": "mg/dL",
+      "categories": []
+    },
+    {
+      "name": "LDL",
+      "label": "LDL cholesterol",
+      "kind": "continuous",
+      "group": "laboratory",
+      "unit": "mg/dL",
+      "categories": []
+    },
+    {
+      "name": "HDL",
+      "label": "HDL cholesterol",
+      "kind": "continuous",
+      "group": "laboratory",
+      "unit": "mg/dL",
+      "categories": []
+    },
+    {
+      "name": "BUN",
+      "label": "Blood urea nitrogen",
+      "kind": "continuous",
+      "group": "laboratory",
+      "unit": "mg/dL",
+      "categories": []
+    },
+    {
+      "name": "ESR",
+      "label": "ESR",
+      "kind": "continuous",
+      "group": "laboratory",
+      "unit": "mm/h",
+      "categories": []
+    },
+    {
+      "name": "HB",
+      "label": "Hemoglobin",
+      "kind": "continuous",
+      "group": "laboratory",
+      "unit": "g/dL",
+      "categories": []
+    },
+    {
+      "name": "K",
+      "label": "Potassium",
+      "kind": "continuous",
+      "group": "laboratory",
+      "unit": "mEq/L",
+      "categories": []
+    },
+    {
+      "name": "Na",
+      "label": "Sodium",
+      "kind": "continuous",
+      "group": "laboratory",
+      "unit": "mEq/L",
+      "categories": []
+    },
+    {
+      "name": "WBC",
+      "label": "White blood cells",
+      "kind": "continuous",
+      "group": "laboratory",
+      "unit": "cells/µL",
+      "categories": []
+    },
+    {
+      "name": "Lymph",
+      "label": "Lymphocytes",
+      "kind": "continuous",
+      "group": "laboratory",
+      "unit": "%",
+      "categories": []
+    },
+    {
+      "name": "Neut",
+      "label": "Neutrophils",
+      "kind": "continuous",
+      "group": "laboratory",
+      "unit": "%",
+      "categories": []
+    },
+    {
+      "name": "PLT",
+      "label": "Platelets",
+      "kind": "continuous",
+      "group": "laboratory",
+      "unit": "×10³/µL",
+      "categories": []
+    },
+    {
+      "name": "EF-TTE",
+      "label": "Ejection fraction (TTE)",
+      "kind": "continuous",
+      "group": "echocardiography",
+      "unit": "%",
+      "categories": []
+    },
+    {
+      "name": "Region RWMA",
+      "label": "Regions with wall-motion abnormality",
+      "kind": "ordinal",
+      "group": "echocardiography",
+      "unit": "",
+      "categories": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ]
+    },
+    {
+      "name": "VHD",
+      "label": "Valvular heart disease",
+      "kind": "ordinal",
+      "group": "echocardiography",
+      "unit": "",
+      "categories": [
+        "N",
+        "mild",
+        "Moderate",
+        "Severe"
+      ]
+    }
+  ]
+}

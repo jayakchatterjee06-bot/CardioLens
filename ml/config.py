@@ -11,8 +11,19 @@ RAW_DATA_PATH = ML_ROOT / "data" / "raw" / "z_alizadeh_sani_extension.xlsx"
 RAW_SHEET_NAME = "Sheet 1 - Table 1"  # "Sheet1" in the workbook is an empty header-only template
 PROCESSED_DIR = ML_ROOT / "data" / "processed"
 MODELS_DIR = ML_ROOT / "models"
+REPORTS_DIR = ML_ROOT / "reports"
 
 RANDOM_STATE = 42
+
+# Validation: repeated stratified k-fold. With 303 rows a single hold-out set (~60 patients)
+# is too noisy, so every patient is tested once per repeat and metrics are reported as mean ± std.
+CV_SPLITS = 5
+CV_REPEATS = 5
+SELECTION_METRIC = "roc_auc"
+DECISION_THRESHOLD = 0.5
+
+# Rows kept as the SHAP reference distribution (saved alongside the models).
+SHAP_BACKGROUND_SIZE = 100
 
 
 @dataclass(frozen=True)
