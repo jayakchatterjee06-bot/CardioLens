@@ -6,7 +6,7 @@ Multimodal AI Hackathon 2026, Track A.
 
 > **Decision support / educational use only.** Not a substitute for formal diagnostic imaging.
 
-## Structure
+## Structure (Plan or Workflow of the project made by claude)
 
 ```
 CardioLens/
@@ -37,7 +37,7 @@ CardioLens/
 └── setup.sh                # one-shot macOS setup
 ```
 
-## Setup (already done on this machine)
+## Setup 
 
 ```bash
 ./setup.sh
