@@ -38,10 +38,16 @@ class Feature:
     label: str
     unit: str = ""
     categories: tuple = ()
+    bounds: tuple[float, float] | None = None  # plausible clinical range for continuous inputs
 
     def __post_init__(self) -> None:
-        if self.kind is FeatureKind.CONTINUOUS and self.categories:
-            raise ValueError(f"{self.name}: continuous features take no categories")
+        if self.kind is FeatureKind.CONTINUOUS:
+            if self.categories:
+                raise ValueError(f"{self.name}: continuous features take no categories")
+            if self.bounds is None or self.bounds[0] >= self.bounds[1]:
+                raise ValueError(f"{self.name}: continuous features need bounds (min < max)")
+        elif self.bounds is not None:
+            raise ValueError(f"{self.name}: only continuous features take bounds")
         if self.kind is FeatureKind.BINARY and len(self.categories) != 2:
             raise ValueError(f"{self.name}: binary features need exactly (negative, positive)")
         if self.kind in (FeatureKind.ORDINAL, FeatureKind.NOMINAL) and len(self.categories) < 2:
@@ -55,6 +61,8 @@ class Feature:
             "group": self.group.value,
             "unit": self.unit,
             "categories": list(self.categories),
+            "min": self.bounds[0] if self.bounds else None,
+            "max": self.bounds[1] if self.bounds else None,
         }
 
 
@@ -63,8 +71,8 @@ _FLAG = (0, 1)
 G = FeatureGroup
 
 
-def _num(name: str, group: FeatureGroup, label: str, unit: str = "") -> Feature:
-    return Feature(name, FeatureKind.CONTINUOUS, group, label, unit)
+def _num(name: str, group: FeatureGroup, label: str, unit: str, bounds: tuple[float, float]) -> Feature:
+    return Feature(name, FeatureKind.CONTINUOUS, group, label, unit, bounds=bounds)
 
 
 def _bin(name: str, group: FeatureGroup, label: str, categories: tuple = _YN) -> Feature:
@@ -73,11 +81,11 @@ def _bin(name: str, group: FeatureGroup, label: str, categories: tuple = _YN) ->
 
 FEATURES: tuple[Feature, ...] = (
     # Demographic
-    _num("Age", G.DEMOGRAPHIC, "Age", "years"),
-    _num("Weight", G.DEMOGRAPHIC, "Weight", "kg"),
-    _num("Length", G.DEMOGRAPHIC, "Height", "cm"),
+    _num("Age", G.DEMOGRAPHIC, "Age", "years", (18, 110)),
+    _num("Weight", G.DEMOGRAPHIC, "Weight", "kg", (30, 250)),
+    _num("Length", G.DEMOGRAPHIC, "Height", "cm", (120, 220)),
     _bin("Sex", G.DEMOGRAPHIC, "Sex (male)", ("Female", "Male")),
-    _num("BMI", G.DEMOGRAPHIC, "BMI", "kg/m²"),
+    _num("BMI", G.DEMOGRAPHIC, "BMI", "kg/m²", (12, 70)),
     # History / risk factors
     _bin("DM", G.HISTORY, "Diabetes mellitus", _FLAG),
     _bin("HTN", G.HISTORY, "Hypertension", _FLAG),
@@ -92,8 +100,8 @@ FEATURES: tuple[Feature, ...] = (
     _bin("CHF", G.HISTORY, "Congestive heart failure"),
     _bin("DLP", G.HISTORY, "Dyslipidemia"),
     # Symptoms & examination
-    _num("BP", G.EXAMINATION, "Blood pressure", "mmHg"),
-    _num("PR", G.EXAMINATION, "Pulse rate", "bpm"),
+    _num("BP", G.EXAMINATION, "Blood pressure", "mmHg", (60, 260)),
+    _num("PR", G.EXAMINATION, "Pulse rate", "bpm", (30, 200)),
     _bin("Edema", G.EXAMINATION, "Edema", _FLAG),
     _bin("Weak Peripheral Pulse", G.EXAMINATION, "Weak peripheral pulse"),
     _bin("Lung rales", G.EXAMINATION, "Lung rales"),
@@ -114,22 +122,22 @@ FEATURES: tuple[Feature, ...] = (
     _bin("Poor R Progression", G.ECG, "Poor R-wave progression"),
     Feature("BBB", FeatureKind.NOMINAL, G.ECG, "Bundle branch block", categories=("N", "LBBB", "RBBB")),
     # Laboratory
-    _num("FBS", G.LABORATORY, "Fasting blood sugar", "mg/dL"),
-    _num("CR", G.LABORATORY, "Creatinine", "mg/dL"),
-    _num("TG", G.LABORATORY, "Triglycerides", "mg/dL"),
-    _num("LDL", G.LABORATORY, "LDL cholesterol", "mg/dL"),
-    _num("HDL", G.LABORATORY, "HDL cholesterol", "mg/dL"),
-    _num("BUN", G.LABORATORY, "Blood urea nitrogen", "mg/dL"),
-    _num("ESR", G.LABORATORY, "ESR", "mm/h"),
-    _num("HB", G.LABORATORY, "Hemoglobin", "g/dL"),
-    _num("K", G.LABORATORY, "Potassium", "mEq/L"),
-    _num("Na", G.LABORATORY, "Sodium", "mEq/L"),
-    _num("WBC", G.LABORATORY, "White blood cells", "cells/µL"),
-    _num("Lymph", G.LABORATORY, "Lymphocytes", "%"),
-    _num("Neut", G.LABORATORY, "Neutrophils", "%"),
-    _num("PLT", G.LABORATORY, "Platelets", "×10³/µL"),
+    _num("FBS", G.LABORATORY, "Fasting blood sugar", "mg/dL", (40, 600)),
+    _num("CR", G.LABORATORY, "Creatinine", "mg/dL", (0.2, 15)),
+    _num("TG", G.LABORATORY, "Triglycerides", "mg/dL", (20, 3000)),
+    _num("LDL", G.LABORATORY, "LDL cholesterol", "mg/dL", (10, 400)),
+    _num("HDL", G.LABORATORY, "HDL cholesterol", "mg/dL", (5, 150)),
+    _num("BUN", G.LABORATORY, "Blood urea nitrogen", "mg/dL", (2, 150)),
+    _num("ESR", G.LABORATORY, "ESR", "mm/h", (0, 150)),
+    _num("HB", G.LABORATORY, "Hemoglobin", "g/dL", (4, 22)),
+    _num("K", G.LABORATORY, "Potassium", "mEq/L", (2, 8)),
+    _num("Na", G.LABORATORY, "Sodium", "mEq/L", (110, 170)),
+    _num("WBC", G.LABORATORY, "White blood cells", "cells/µL", (1000, 50000)),
+    _num("Lymph", G.LABORATORY, "Lymphocytes", "%", (0, 100)),
+    _num("Neut", G.LABORATORY, "Neutrophils", "%", (0, 100)),
+    _num("PLT", G.LABORATORY, "Platelets", "×10³/µL", (10, 1500)),
     # Echocardiography
-    _num("EF-TTE", G.ECHO, "Ejection fraction (TTE)", "%"),
+    _num("EF-TTE", G.ECHO, "Ejection fraction (TTE)", "%", (5, 85)),
     Feature("Region RWMA", FeatureKind.ORDINAL, G.ECHO, "Regions with wall-motion abnormality", categories=(0, 1, 2, 3, 4)),
     Feature("VHD", FeatureKind.ORDINAL, G.ECHO, "Valvular heart disease", categories=("N", "mild", "Moderate", "Severe")),
 )

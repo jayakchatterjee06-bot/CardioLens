@@ -27,7 +27,7 @@ CardioLens/
 │   ├── data/raw/           # UCI #411 Extension of Z-Alizadeh Sani (xlsx + original zip)
 │   ├── models/             # {cad,lad,lcx,rca}.joblib, manifest.json, shap_background.csv
 │   └── reports/            # metrics.md, metrics.json, ROC / calibration / importance figures
-├── backend/                # FastAPI (main.py, schemas.py, inference.py)
+├── backend/                # FastAPI: main.py (routes), schemas.py, inference.py (service), samples.py, settings.py
 ├── frontend/               # Vite + React + React Three Fiber
 │   └── src/{components,api,config}
 ├── tools/                  # asset build scripts (heart_model.glb)
@@ -58,7 +58,7 @@ cd frontend && npm run dev
 
 Other commands (from the project root, venv active):
 ```bash
-python -m ml.train             # retrain all 4 models + regenerate ml/reports (~2 min)
+python -m ml.train             # retrain all 4 models + regenerate ml/reports 
 python -m ml.inspect_dataset   # dataset report
 pytest -q tests                # test suite
 ```
@@ -80,6 +80,26 @@ Each target is saved as one self-contained `RiskModel` (preprocessing + classifi
 
 Full tables, per-model comparisons and figures: `ml/reports/`. SHAP explanations are reported in
 probability units (a contribution of +0.12 = +12 percentage points of risk) for every model type.
+
+## API
+
+Start it with `uvicorn backend.main:app --reload --port 8000`; interactive docs at
+http://127.0.0.1:8000/docs. Models, explainers and sample patients load once at startup
+(including one warm-up prediction), so every request takes about 0.45 s.
+
+| Route | Purpose |
+|---|---|
+| `GET /api/health` | Liveness + whether models are loaded |
+| `GET /api/metadata` | The 54 input features (label, unit, group, allowed values, bounds) and per-target model + CV metrics |
+| `GET /api/samples` | Four real dataset patients (no CAD, borderline, LAD-only, three-vessel) with their true labels |
+| `POST /api/predict` | Calibrated CAD/LAD/LCX/RCA probabilities, each with all 54 SHAP contributions |
+
+The request body is the 54 features keyed by dataset column name (e.g. `"Age"`, `"EF-TTE"`, `"Sex": "Male"`).
+Its schema is generated from `ml/features.py`, so it always matches the models: unknown categories,
+out-of-range values, missing fields and any extra field (including `Cath`, `LAD`, `LCX`, `RCA`) return 422.
+To try it in /docs: call `/api/samples`, copy one `patient` object, and paste it into `/api/predict`.
+
+Sample patients were part of the training data, so their predictions are more confident than for new patients.
 
 ## Dataset notes (UCI #411, 303 rows × 59 columns, no missing values)
 

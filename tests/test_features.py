@@ -39,3 +39,17 @@ def test_every_clinical_group_is_represented():
 def test_feature_definition_is_validated():
     with pytest.raises(ValueError):
         Feature("X", FeatureKind.BINARY, FeatureGroup.ECG, "X", categories=("N",))
+
+
+def test_every_observed_value_is_inside_its_clinical_bounds(raw_df):
+    for feature in FEATURES:
+        if feature.kind is FeatureKind.CONTINUOUS:
+            low, high = feature.bounds
+            assert raw_df[feature.name].between(low, high).all(), feature.name
+
+
+def test_bounds_are_only_allowed_on_continuous_features():
+    with pytest.raises(ValueError):
+        Feature("X", FeatureKind.BINARY, FeatureGroup.ECG, "X", categories=("N", "Y"), bounds=(0, 1))
+    with pytest.raises(ValueError):
+        Feature("X", FeatureKind.CONTINUOUS, FeatureGroup.LABORATORY, "X", bounds=None)

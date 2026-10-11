@@ -6,7 +6,8 @@ from ml.data_loader import load_raw_dataset
 
 
 def test_health_lists_all_targets():
-    response = TestClient(app).get("/api/health")
+    with TestClient(app) as client:
+        response = client.get("/api/health")
     assert response.status_code == 200
     assert response.json()["targets"] == list(TARGETS)
 
