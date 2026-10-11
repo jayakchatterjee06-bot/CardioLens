@@ -1,6 +1,6 @@
 import { Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
-import { Html, OrbitControls, useGLTF } from '@react-three/drei'
+import { OrbitControls, useGLTF } from '@react-three/drei'
 import { Vector3 } from 'three'
 import { NO_PREDICTION_COLOR, RISK_BANDS, VESSELS, vesselColor } from '../config/vessels'
 import { CONTEXT_PARTS, MODEL_CREDIT, MODEL_URL } from '../config/anatomy'
@@ -94,10 +94,6 @@ function LabelProjector({ anchors, labelEls }) {
   return null
 }
 
-function Loading() {
-  return <Html center><div className="viewer-loading">Loading heart model…</div></Html>
-}
-
 export default function HeartViewer({ probabilities = {}, selectedVessel = null, onSelectVessel = () => {} }) {
   const [translucent, setTranslucent] = useState(false)
   const [modelReady, setModelReady] = useState(false)
@@ -113,7 +109,7 @@ export default function HeartViewer({ probabilities = {}, selectedVessel = null,
         <hemisphereLight args={['#ffffff', '#3a2a2a', 0.9]} />
         <directionalLight position={[3, 4, 5]} intensity={1.6} />
         <directionalLight position={[-4, -2, -3]} intensity={0.5} />
-        <Suspense fallback={<Loading />}>
+        <Suspense fallback={null}>
           <HeartModel
             probabilities={probabilities}
             selectedVessel={selectedVessel}
@@ -125,6 +121,8 @@ export default function HeartViewer({ probabilities = {}, selectedVessel = null,
         <LabelProjector anchors={anchors} labelEls={labelEls} />
         <OrbitControls enablePan={false} minDistance={2} maxDistance={8} enableDamping />
       </Canvas>
+
+      {!modelReady && <div className="viewer-loading">Loading the heart model…</div>}
 
       {modelReady && VESSELS.map((v) => {
         const p = probabilities[v.key]

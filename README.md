@@ -29,7 +29,12 @@ CardioLens/
 │   └── reports/            # metrics.md, metrics.json, ROC / calibration / importance figures
 ├── backend/                # FastAPI: main.py (routes), schemas.py, inference.py (service), samples.py, settings.py
 ├── frontend/               # Vite + React + React Three Fiber
-│   └── src/{components,api,config}
+│   └── src/
+│       ├── App.jsx              # three-column layout: patient form | 3D heart | results
+│       ├── hooks/usePrediction.js   # loads metadata + samples, debounced /api/predict, errors
+│       ├── components/          # PatientForm, HeartViewer, Dashboard, ShapChart, Disclaimer
+│       ├── config/              # vessels.js (model key -> mesh node), anatomy.js
+│       └── api/client.js
 ├── tools/                  # asset build scripts (heart_model.glb)
 ├── tests/                  # pytest smoke tests
 ├── docs/                   # submission documentation
@@ -98,6 +103,24 @@ The request body is the 54 features keyed by dataset column name (e.g. `"Age"`, 
 Its schema is generated from `ml/features.py`, so it always matches the models: unknown categories,
 out-of-range values, missing fields and any extra field (including `Cath`, `LAD`, `LCX`, `RCA`) return 422.
 To try it in /docs: call `/api/samples`, copy one `patient` object, and paste it into `/api/predict`.
+
+Sample patients were part of the training data, so their predictions are more confident than for new patients.
+
+## Using the app
+
+Open http://localhost:5173 with both servers running. The first sample patient loads automatically.
+
+- **Patient panel (left):** four real dataset cases to load, then the 54 clinical inputs in six
+  collapsible groups. The form is generated from `/api/metadata`, so allowed values, units and
+  plausible ranges come from the same registry the models were trained on. Any edit re-predicts
+  after a short pause; out-of-range or invalid values are flagged on the field.
+- **Heart (centre):** LAD, LCX and RCA are coloured by their calibrated stenosis probability
+  (green < 33%, amber < 66%, red above). Drag to rotate, scroll to zoom, click a vessel or its label
+  to select it. "See-through myocardium" reveals vessels behind the muscle.
+- **Results (right):** overall CAD probability with its risk band and 50% decision call, the three
+  vessel probabilities, a SHAP breakdown of the selected vessel (or CAD when none is selected) showing
+  each measurement's value and its effect in percentage points, and the cross-validated performance
+  of each model.
 
 Sample patients were part of the training data, so their predictions are more confident than for new patients.
 
