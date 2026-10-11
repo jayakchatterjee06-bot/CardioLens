@@ -1,0 +1,35 @@
+* { box-sizing: border-box; }
+body { margin: 0; font-family: system-ui, -apple-system, sans-serif; background: #0f1419; color: #e6e9ee; }
+h2, h3 { margin: 0 0 8px; }
+.muted { color: #94a3b8; font-size: 14px; }
+.layout { display: grid; grid-template-columns: 1fr 380px; height: calc(100vh - 56px); }
+.viewer { position: relative; min-height: 0; }
+.viewer-shell { position: absolute; inset: 0; }
+.panel { padding: 16px; overflow-y: auto; border-left: 1px solid #263040; display: flex; flex-direction: column; gap: 12px; }
+.card { background: #16202b; border: 1px solid #263040; border-radius: 8px; padding: 12px; }
+.btn { background: #1e293b; color: #e6e9ee; border: 1px solid #334155; border-radius: 6px; padding: 8px 12px; cursor: pointer; }
+.btn:hover { background: #273449; }
+
+.viewer-overlay { position: absolute; pointer-events: none; font-size: 12px; }
+.viewer-overlay > * { pointer-events: auto; }
+.top-right { top: 12px; right: 12px; }
+.bottom-left { bottom: 12px; left: 12px; display: flex; flex-direction: column; gap: 6px; }
+.toggle { background: rgba(15, 20, 25, 0.8); padding: 6px 10px; border-radius: 6px; display: flex; gap: 6px; align-items: center; cursor: pointer; }
+.legend { display: flex; gap: 12px; background: rgba(15, 20, 25, 0.8); padding: 6px 10px; border-radius: 6px; }
+.legend span { display: flex; align-items: center; gap: 5px; }
+.legend i { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+.credit { color: #64748b; }
+
+.vessel-label {
+  position: absolute; left: 0; top: 0; z-index: 5;
+  background: rgba(15, 20, 25, 0.85); color: #fff; border: 2px solid; border-radius: 999px;
+  padding: 2px 8px; font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap;
+}
+.vessel-label.selected { background: #fff; color: #0f1419; }
+.viewer-loading { color: #94a3b8; white-space: nowrap; }
+
+@media (max-width: 900px) {
+  .layout { grid-template-columns: 1fr; grid-template-rows: 60vh auto; height: auto; }
+  .panel { border-left: none; border-top: 1px solid #263040; }
+}
+.vessel-label.far-side { opacity: 0.35; }

@@ -1,0 +1,21 @@
+# One environment shared by ml/ and backend/ so the scikit-learn version that
+# trains the models is exactly the one that unpickles them at inference time.
+# Exact resolved versions are frozen in requirements.lock.txt.
+
+# ML
+pandas>=2.2
+numpy>=1.26
+scikit-learn>=1.5
+shap>=0.46
+joblib>=1.4
+openpyxl>=3.1
+matplotlib>=3.8
+
+# API
+fastapi>=0.115
+uvicorn[standard]>=0.30
+pydantic>=2.7
+
+# Tests
+pytest>=8.0
+httpx>=0.27
