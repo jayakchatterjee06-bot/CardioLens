@@ -37,7 +37,7 @@ CardioLens/
 │       └── api/client.js
 ├── tools/                  # asset build scripts (heart_model.glb)
 ├── tests/                  # pytest smoke tests
-├── docs/                   # submission documentation
+├── docs/                   # submission documentation (PDF, Markdown source, figures)
 ├── requirements.txt        # one venv shared by ml/ and backend/
 ├── setup.sh                # one-shot macOS setup
 └── start.sh                # starts both servers with one command
@@ -114,6 +114,12 @@ out-of-range values, missing fields and any extra field (including `Cath`, `LAD`
 To try it in /docs: call `/api/samples`, copy one `patient` object, and paste it into `/api/predict`.
 
 Sample patients were part of the training data, so their predictions are more confident than for new patients.
+
+## Documentation
+
+The six-page project documentation (dataset and preprocessing, models and evaluation, explainability,
+3D pipeline, dashboard and API, usage, limitations) is at `docs/CardioLens_Documentation.pdf`,
+with a Markdown version at `docs/documentation.md`.
 
 ## Using the app
 
