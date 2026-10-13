@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>CardioLens: Project Documentation</title>
+<style>
+  @page { size: A4; margin: 16mm 17mm 18mm 17mm; }
+  * { box-sizing: border-box; }
+  html { font-size: 10.2pt; }
+  body { font-family: Inter, "Helvetica Neue", Arial, sans-serif; color: #141a1f; line-height: 1.38; margin: 0; font-variant-numeric: tabular-nums; }
+  h1 { font-size: 22pt; margin: 0 0 2mm; letter-spacing: -0.015em; }
+  .subtitle { font-size: 11pt; color: #3d4a56; margin: 0 0 2mm; }
+  .meta { font-size: 9pt; color: #3d4a56; margin: 0 0 5mm; padding-bottom: 3mm; border-bottom: 1px solid #c9d1d8; }
+  .meta span { margin-right: 6mm; white-space: nowrap; }
+  h2 { font-size: 13pt; margin: 6mm 0 1.6mm; padding-top: 1mm; letter-spacing: -0.01em; break-after: avoid; }
+  h2:first-of-type { margin-top: 0; }
+  h3 { font-size: 10.6pt; margin: 3.2mm 0 1mm; break-after: avoid; }
+  p { margin: 0 0 2mm; }
+  ul { margin: 0 0 2mm; padding-left: 4.5mm; }
+  li { margin-bottom: 0.7mm; }
+  code { font-family: "DejaVu Sans Mono", Menlo, monospace; font-size: 8.6pt; background: #eef1f4; padding: 0 2px; border-radius: 2px; }
+  pre { font-family: "DejaVu Sans Mono", Menlo, monospace; font-size: 8.6pt; background: #eef1f4; padding: 2mm 3mm; border-radius: 3px; margin: 1mm 0 2.5mm; white-space: pre; break-inside: avoid; }
+  table { border-collapse: collapse; width: 100%; font-size: 9pt; margin: 1.5mm 0 3mm; break-inside: avoid; }
+  th, td { text-align: left; padding: 1.1mm 2mm; border-bottom: 1px solid #d5dce2; vertical-align: top; }
+  th { font-weight: 600; color: #3d4a56; border-bottom: 1px solid #8a97a3; }
+  td.n, th.n { text-align: right; white-space: nowrap; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 5mm; }
+  figure { margin: 1.5mm 0 3mm; break-inside: avoid; }
+  figure img { width: 100%; display: block; border: 1px solid #d5dce2; }
+  figcaption { font-size: 8.4pt; color: #3d4a56; margin-top: 1mm; }
+  .arch { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 3mm; margin: 2mm 0 3mm; break-inside: avoid; }
+  .box { border: 1px solid #8a97a3; border-radius: 3px; padding: 2mm 2.5mm; font-size: 8.8pt; }
+  .box b { display: block; font-size: 9.4pt; margin-bottom: 0.8mm; }
+  .box .arrow { color: #3d4a56; font-size: 8.4pt; margin-top: 1mm; }
+  .note { border-left: 3px solid #b42318; padding: 1.5mm 3mm; background: #fbf1f0; margin: 2mm 0 3mm; break-inside: avoid; }
+  .small { font-size: 8.8pt; color: #3d4a56; }
+  .pb { break-before: page; }
+</style>
+</head>
+<body>
+
+<h1>CardioLens</h1>
+<p class="subtitle">Interactive 3D cardiovascular risk visualisation and prediction. Multimodal AI Hackathon 2026, Track A.</p>
+<p class="meta">
+  <span>Author: Jayak Chatterjee, solo entry</span>
+  <span>Repository: github.com/jayakchatterjee06-bot/CardioLens</span>
+  <span>Demo video: [YouTube link]</span>
+</p>
+
+<h2>1. Overview</h2>
+<p>CardioLens predicts a patient's overall coronary artery disease (CAD) status and the stenosis status of the three major coronary vessels, the left anterior descending (LAD), left circumflex (LCX) and right coronary artery (RCA), from routine clinical data, and maps those predictions onto an interactive 3D heart. A clinician enters or loads a patient's 54 clinical measurements; the vessels on the heart recolour by predicted risk, and a dashboard shows the probabilities, the model's decision, and a SHAP breakdown of which measurements drove the estimate.</p>
+
+<div class="arch">
+  <div class="box"><b>Frontend (React + React Three Fiber)</b>Patient form generated from the API's feature schema, 3D heart with per-vessel colouring, prediction cards, SHAP chart, model performance panel.<div class="arrow">POST /api/predict, GET /api/metadata, /api/samples ↓</div></div>
+  <div class="box"><b>Backend (FastAPI)</b>Validates the 54 inputs against the training schema, runs the four models and their SHAP explainers once loaded at startup, returns calibrated probabilities with per-feature contributions.<div class="arrow">loads at startup ↓</div></div>
+  <div class="box"><b>ML pipeline (scikit-learn + SHAP)</b>Feature registry, preprocessing, model comparison under repeated cross-validation, calibration, per-target artifacts (<code>cad</code>, <code>lad</code>, <code>lcx</code>, <code>rca</code>) plus a manifest and evaluation report.</div>
+</div>
+
+<p>The three layers share one contract. The feature registry (<code>ml/features.py</code>) defines every input once, with its type, clinical group, unit and allowed range; preprocessing, the API request schema and the patient form are all derived from it. The target keys (<code>cad</code>, <code>lad</code>, <code>lcx</code>, <code>rca</code>) are the model file names, the API response keys and the names of the vessel meshes in the 3D model, so a prediction for the LAD can only ever colour the LAD. Adding a clinical feature, a prediction target or an anatomical structure means adding one entry to the relevant registry rather than editing the application.</p>
+
+<h2>2. Dataset and preprocessing</h2>
+<p><b>Source.</b> UCI Machine Learning Repository dataset 411, "Extension of Z-Alizadeh Sani dataset" (CC BY 4.0): 303 patients, 59 columns, no missing values. Each patient has an angiographic ground truth for overall CAD (<code>Cath</code>: CAD / Normal, with CAD defined as at least 50% narrowing) and for each vessel (<code>LAD</code>, <code>LCX</code>, <code>RCA</code>: Stenotic / Normal). The workbook's second sheet is an empty header template and is ignored.</p>
+
+<table>
+  <tr><th>Target</th><th>Column</th><th>Positive label</th><th class="n">Positives</th><th class="n">Rate</th></tr>
+  <tr><td>Overall CAD</td><td><code>Cath</code></td><td>CAD</td><td class="n">216 / 303</td><td class="n">71.3%</td></tr>
+  <tr><td>LAD stenosis</td><td><code>LAD</code></td><td>Stenotic</td><td class="n">177 / 303</td><td class="n">58.4%</td></tr>
+  <tr><td>LCX stenosis</td><td><code>LCX</code></td><td>Stenotic</td><td class="n">119 / 303</td><td class="n">39.3%</td></tr>
+  <tr><td>RCA stenosis</td><td><code>RCA</code></td><td>Stenotic</td><td class="n">114 / 303</td><td class="n">37.6%</td></tr>
+</table>
+
+<p><b>Leakage control (requirement 1d).</b> <code>Cath</code>, <code>LAD</code>, <code>LCX</code> and <code>RCA</code> are never used as inputs to any model, including the other vessel labels when predicting one vessel. This is enforced in code rather than by convention: the feature registry raises an error if any of these columns reaches a model, saved models are checked for them when loaded, and the API rejects any request containing them (HTTP 422). <code>Cath</code> agrees with "any vessel stenotic" on 302 of 303 rows, so the overall label is essentially a summary of the three vessel labels.</p>
+
+<p><b>Input features (54).</b> After dropping the four targets and one constant column (<code>Exertional CP</code>, "N" for every patient), 54 features remain across six clinical groups: demographics (age, weight, height, sex, BMI), history and risk factors (diabetes, hypertension, smoking, family history, dyslipidemia and others), symptoms and examination (blood pressure, pulse, chest-pain type, functional class, murmurs, dyspnea), ECG (Q wave, ST elevation and depression, T inversion, LVH, bundle branch block), laboratory (glucose, lipids, renal markers, electrolytes, blood counts) and echocardiography (ejection fraction, regional wall-motion abnormality, valvular disease). One typo in the raw data (<code>Sex = "Fmale"</code>) is normalised at load time.</p>
+
+<p><b>Encoding.</b> Each feature's kind is declared in the registry and determines its transform: 21 continuous features are standardised; 29 binary features (Y/N flags, 0/1 flags, sex) map to 0/1; 3 ordered categories (functional class 0–3, regions with wall-motion abnormality 0–4, valvular disease N &lt; mild &lt; moderate &lt; severe) are ordinal-encoded then standardised; the one unordered category (bundle branch block: none / LBBB / RBBB) is one-hot encoded. The result is 56 model columns. The transformer is part of each saved pipeline and is refitted inside every cross-validation fold, so no test fold influences the scaling and inference applies exactly the training-time transform.</p>
+
+<h2>3. Predictive modelling and evaluation</h2>
+<p><b>Method.</b> Four independent binary classifiers are trained, one per target, on the same 54 inputs. For each target, three candidate models with fixed, conservative hyperparameters are compared: logistic regression (C = 0.5), random forest (400 trees, minimum leaf size 3) and histogram gradient boosting (depth 3, learning rate 0.05, 200 iterations, L2 = 1). The candidate with the highest cross-validated ROC-AUC is selected, refitted on all 303 patients and saved. Hyperparameters are not tuned per target, which keeps model selection to a single three-way comparison and limits optimistic bias in the reported scores. No class re-weighting is applied: imbalance is mild (38–71% positive) and re-weighting would distort the probabilities that drive the risk colours.</p>
+
+<p><b>Validation.</b> With 303 patients a single hold-out split (about 60 test patients) gives metrics that swing with the draw, so all reported metrics come from repeated stratified 5-fold cross-validation with 5 repeats (25 fits per model, every patient tested five times). Values are mean ± standard deviation across folds. Accuracy, precision, recall, F1 and ROC-AUC are reported as the brief requires; the Brier score is added because the probabilities themselves are displayed.</p>
+
+<table>
+  <tr><th>Target</th><th class="n">Logistic regression</th><th class="n">Random forest</th><th class="n">Gradient boosting</th><th>Selected</th></tr>
+  <tr><td>Overall CAD</td><td class="n">0.923 ± 0.032</td><td class="n"><b>0.923 ± 0.037</b></td><td class="n">0.900 ± 0.045</td><td>Random forest</td></tr>
+  <tr><td>LAD</td><td class="n">0.830 ± 0.051</td><td class="n"><b>0.852 ± 0.047</b></td><td class="n">0.812 ± 0.045</td><td>Random forest</td></tr>
+  <tr><td>LCX</td><td class="n">0.692 ± 0.076</td><td class="n"><b>0.729 ± 0.065</b></td><td class="n">0.722 ± 0.066</td><td>Random forest</td></tr>
+  <tr><td>RCA</td><td class="n"><b>0.728 ± 0.055</b></td><td class="n">0.716 ± 0.055</td><td class="n">0.693 ± 0.066</td><td>Logistic regression</td></tr>
+</table>
+<p class="small">Table 1. Cross-validated ROC-AUC of the three candidates per target. For CAD, logistic regression tied the random forest on AUC with a slightly better raw Brier score; the random forest was kept under the selection rule fixed before the run.</p>
+
+<table>
+  <tr><th>Target</th><th>Model</th><th class="n">ROC-AUC</th><th class="n">Accuracy</th><th class="n">Precision</th><th class="n">Recall</th><th class="n">F1</th><th class="n">Brier</th></tr>
+  <tr><td>Overall CAD</td><td>Random forest</td><td class="n">0.923 ± 0.037</td><td class="n">0.857 ± 0.043</td><td class="n">0.864 ± 0.033</td><td class="n">0.950 ± 0.036</td><td class="n">0.904 ± 0.029</td><td class="n">0.115 ± 0.014</td></tr>
+  <tr><td>LAD</td><td>Random forest</td><td class="n">0.852 ± 0.047</td><td class="n">0.786 ± 0.048</td><td class="n">0.777 ± 0.047</td><td class="n">0.893 ± 0.059</td><td class="n">0.829 ± 0.039</td><td class="n">0.166 ± 0.014</td></tr>
+  <tr><td>LCX</td><td>Random forest</td><td class="n">0.729 ± 0.065</td><td class="n">0.676 ± 0.056</td><td class="n">0.657 ± 0.137</td><td class="n">0.361 ± 0.102</td><td class="n">0.462 ± 0.113</td><td class="n">0.207 ± 0.014</td></tr>
+  <tr><td>RCA</td><td>Logistic regression</td><td class="n">0.728 ± 0.055</td><td class="n">0.669 ± 0.048</td><td class="n">0.572 ± 0.074</td><td class="n">0.481 ± 0.108</td><td class="n">0.518 ± 0.088</td><td class="n">0.209 ± 0.025</td></tr>
+</table>
+<p class="small">Table 2. Full cross-validated metrics of the selected model per target (decision threshold 0.5).</p>
+
+<p><b>Calibration.</b> The 3D viewer colours each vessel by its predicted probability (green below 33%, amber 33–66%, red above 66%), so the probabilities must match observed frequencies. Random forests compress probabilities towards 0.5: out of fold, CAD patients scored around 0.39 by the raw model had CAD only 18% of the time, which would have shown healthy patients as amber. Each selected model is therefore wrapped with a Platt calibrator (a two-parameter logistic map on the model's logit) fitted on its out-of-fold predictions. The map is monotone, so ranking and ROC-AUC are unchanged. Calibration is evaluated cross-fitted, so each patient's calibrator never saw that patient. Table 3 reports the deployed models on this basis; Figure 2 shows the effect.</p>
+
+<table>
+  <tr><th>Target</th><th class="n">ROC-AUC</th><th class="n">Accuracy</th><th class="n">Precision</th><th class="n">Recall</th><th class="n">F1</th><th class="n">Brier raw → calibrated</th></tr>
+  <tr><td>Overall CAD</td><td class="n">0.915</td><td class="n">0.871</td><td class="n">0.893</td><td class="n">0.931</td><td class="n">0.912</td><td class="n">0.116 → 0.100</td></tr>
+  <tr><td>LAD</td><td class="n">0.851</td><td class="n">0.789</td><td class="n">0.796</td><td class="n">0.859</td><td class="n">0.826</td><td class="n">0.164 → 0.152</td></tr>
+  <tr><td>LCX</td><td class="n">0.723</td><td class="n">0.696</td><td class="n">0.652</td><td class="n">0.487</td><td class="n">0.558</td><td class="n">0.207 → 0.206</td></tr>
+  <tr><td>RCA</td><td class="n">0.712</td><td class="n">0.657</td><td class="n">0.566</td><td class="n">0.377</td><td class="n">0.453</td><td class="n">0.214 → 0.205</td></tr>
+</table>
+<p class="small">Table 3. Deployed models (selected model + calibration), out-of-fold predictions, threshold 0.5.</p>
+
+<div class="two">
+  <figure><img src="figures/roc_curves.png" alt="ROC curves"><figcaption>Figure 1. ROC curves from out-of-fold predictions. Overall CAD and LAD are predicted well from clinical data; LCX and RCA are harder.</figcaption></figure>
+  <figure><img src="figures/calibration.png" alt="Calibration"><figcaption>Figure 2. Reliability curves before (faded) and after Platt calibration (solid). Five quantile bins; the dashed diagonal is perfect calibration.</figcaption></figure>
+</div>
+
+<p><b>Reading the results.</b> Overall CAD (AUC 0.92) and LAD stenosis (0.85) are predicted well from non-invasive data. LCX and RCA stenosis are harder (0.73 each): at the 0.5 threshold their recall is 0.49 and 0.38, so roughly half of stenosed LCX/RCA patients are called negative. This is an honest limit of predicting individual vessels from clinical features alone, and the interface relies on the probability bands rather than the binary call, so a 45% RCA risk is shown as moderate rather than hidden behind "negative".</p>
+
+<h2>4. Explainability</h2>
+<p>Every prediction comes with a SHAP breakdown. Tree models use exact TreeSHAP with interventional feature perturbation; logistic regression uses permutation SHAP on the model's probability output. All explanations are expressed in the same unit, probability of the positive class, so a contribution of +0.12 always means "this measurement raised the estimated risk by 12 percentage points" regardless of which model won for that target. SHAP values of one-hot columns are folded back into their clinical feature, contributions are rescaled onto the calibrated probability scale, and the raw patient value with its unit is attached to each one, so the dashboard shows "Ejection fraction (TTE) 35%, +6.8 points" rather than a scaled coefficient. A test asserts that, for every model type and calibrator, the base value plus the 54 contributions equals the displayed probability. A reference set of 100 patients saved with the models is the SHAP background; global importance (mean |SHAP| over all patients, Figure 3) is computed at training time and served with the model metadata.</p>
+
+<figure><img src="figures/feature_importance.png" alt="Feature importance" style="width: 92%; margin: 0 auto;"><figcaption>Figure 3. Top ten features per target by mean absolute SHAP value. Typical chest pain, age, ejection fraction and regional wall-motion abnormality dominate CAD and LAD; diabetes, age, sex and functional class dominate RCA.</figcaption></figure>
+
+<h2>5. 3D pipeline</h2>
+<p><b>Anatomy source.</b> The heart is built from BodyParts3D (Database Center for Life Science, CC BY 4.0), the resource suggested in the brief. A build script (<code>tools/build_heart_model.py</code>) downloads the part-of mesh archive, selects meshes by FMA concept and merges them into one glTF binary (<code>frontend/public/heart_model.glb</code>) with one named node per structure:</p>
+
+<table>
+  <tr><th>glTF node</th><th>BodyParts3D concept</th><th>Role</th></tr>
+  <tr><td><code>lad</code></td><td>FMA3862 anterior interventricular branch of left coronary artery</td><td>coloured by the LAD model</td></tr>
+  <tr><td><code>lcx</code></td><td>FMA3895 circumflex branch of left coronary artery</td><td>coloured by the LCX model</td></tr>
+  <tr><td><code>rca</code></td><td>FMA50039 right coronary artery</td><td>coloured by the RCA model</td></tr>
+  <tr><td><code>left_main</code>, <code>myocardium</code>, <code>aorta</code>, <code>pulmonary_trunk</code>, <code>coronary_veins</code></td><td>FMA3855, FMA7088 (less the coronary vessels), FMA3736 + FMA3768, FMA8612, coronary veins</td><td>anatomical context</td></tr>
+</table>
+
+<p>The script re-orients the meshes from BodyParts3D's coordinate system (Z up, anterior −Y) to the renderer's (Y up, anterior towards the camera), centres the heart and scales it to a fixed height, and decimates the myocardium and veins so the whole model is about 66,000 triangles and 1.2 MB. The vessel nodes keep full resolution. Because the node names are the ML target keys, the correspondence between model outputs and displayed structures (technical consideration 3) is a naming invariant rather than a lookup table.</p>
+
+<p><b>Rendering and interaction.</b> The frontend uses React Three Fiber with drei. Each vessel is a separate mesh whose material colour is set from its calibrated probability through a single risk-band function shared with the dashboard. Vessels respond to hover and click; clicking selects the vessel, highlights it, and switches the SHAP chart to that vessel's model. Labels are HTML elements projected from a stable anchor point on each vessel's surface each frame, dimmed when the anchor faces away from the camera. Orbit controls give rotation and zoom, and a toggle makes the myocardium translucent to reveal vessels behind it. On an integrated-GPU laptop the scene renders at full frame rate; the model loads in two to three seconds on first visit.</p>
+
+<h2>6. Clinical dashboard and API</h2>
+<figure><img src="figures/app_screenshot.jpg" alt="CardioLens interface" style="width: 96%; margin: 0 auto;"><figcaption>Figure 4. The application with a single-vessel (LAD) patient loaded: patient form (left), 3D heart with LAD at 99% (red), LCX 8% (green) and RCA 35% (amber), and the prediction panel with the SHAP breakdown (right). The safety disclaimer is fixed across the top of every view.</figcaption></figure>
+
+<p>The right-hand panel shows the overall CAD probability with its risk band and whether it is above or below the 50% decision threshold, the three vessel probabilities (clickable, kept in sync with the heart), the SHAP chart for the selected vessel (overall CAD when none is selected) with each measurement's value, unit and contribution in percentage points, and a table of each model's cross-validated performance. The left-hand form offers four real patients from the dataset (normal angiogram, borderline, LAD-only, three-vessel disease) and the 54 inputs in six collapsible clinical groups. Any edit re-predicts after a short pause, so the heart recolours as values change; invalid values are flagged on the field with the server's message and the last valid prediction stays visible. A note states that sample patients were part of the training data, so their predictions are more confident than for new patients.</p>
+
+<p><b>API.</b> The FastAPI backend exposes <code>GET /api/metadata</code> (the 54 features with labels, units, allowed values and ranges, plus each target's model and metrics), <code>GET /api/samples</code>, <code>GET /api/health</code> and <code>POST /api/predict</code>, which returns, for each target, the calibrated probability, the threshold decision, the base value and all 54 contributions. The request schema is generated from the feature registry: unknown categories, out-of-range values, missing fields and any extra field (including the four target columns) are rejected with HTTP 422. Models and explainers load once at startup with a warm-up prediction, after which a request takes about 0.45 s on a laptop. Interactive documentation is served at <code>/docs</code>.</p>
+
+<h2>7. Usage</h2>
+<p>Requirements: Python 3.11, Node 18 or newer, and a modern browser. On macOS the setup script installs Python and Node through Homebrew if they are missing; on Linux install them first; on Windows use WSL or run the manual commands below.</p>
+<pre>git clone https://github.com/jayakchatterjee06-bot/CardioLens
+cd CardioLens
+./setup.sh        # creates .venv, installs Python and npm packages (once)
+./start.sh        # starts the API (:8000) and the UI (:5173), opens http://localhost:5173</pre>
+<p>Manual alternative: <code>source .venv/bin/activate &amp;&amp; uvicorn backend.main:app --port 8000</code> in one terminal and <code>cd frontend &amp;&amp; npm run dev</code> in another. Other commands, run from the project root with the virtual environment active: <code>python -m ml.train</code> retrains all four models and regenerates <code>ml/reports/</code> (about two minutes); <code>pytest -q tests</code> runs the 54 tests, which cover the leakage guard, preprocessing, calibration, SHAP additivity, the saved artifacts and the API end to end; <code>python -m tools.build_heart_model</code> rebuilds the heart mesh. Exact package versions are frozen in <code>requirements.lock.txt</code> and <code>frontend/package-lock.json</code>; the trained model files and the dataset are included in the repository so a clone runs without downloading anything.</p>
+
+<h2>8. Limitations and clinical safety</h2>
+<div class="note"><b>Decision support and educational use only.</b> CardioLens is a prototype trained on 303 patients from a single centre. Its outputs are not a diagnosis and are not a substitute for formal diagnostic imaging such as coronary angiography or for professional medical judgement. This disclaimer is displayed permanently in the interface and returned with every API response.</div>
+<ul>
+  <li><b>Small, single-source dataset.</b> 303 patients from one hospital in Iran; performance on other populations is unknown and the ± intervals are wide. No external validation was possible within the hackathon.</li>
+  <li><b>Vessel-level prediction is hard.</b> LCX and RCA reach AUC 0.73 with low recall at the 0.5 threshold. The interface therefore foregrounds probabilities and risk bands rather than binary calls.</li>
+  <li><b>Sample patients are in-sample.</b> The four demo patients were used for training, so their predictions are more confident than those for a new patient; the interface says so whenever one is loaded.</li>
+  <li><b>Anatomy is generic.</b> The 3D heart is a reference model, not the patient's own anatomy; vessel colours represent predicted risk per vessel, not lesion location along the vessel.</li>
+  <li><b>Not a medical device.</b> No regulatory validation, audit logging or access control has been implemented.</li>
+</ul>
+
+<h2>9. Development process and acknowledgements</h2>
+<p>CardioLens was built by Jayak Chatterjee as a solo entry using Claude Code (Anthropic) as an agentic coding assistant. Claude Code subagents scaffolded the repository, downloaded and inspected the dataset, wrote and ran the training and evaluation code, built the BodyParts3D mesh pipeline, implemented the API and the React application, and verified the running application in the browser against the live backend. The author set the plan and phase order, reviewed each phase's output and results, made the design decisions recorded in this document (model selection rule, calibration, the shared feature registry and the vessel naming invariant), and tested the application independently before each commit. Dataset: Alizadehsani et al., "Extension of Z-Alizadeh Sani dataset", UCI Machine Learning Repository (CC BY 4.0). Anatomy: BodyParts3D, © The Database Center for Life Science, licensed under CC Attribution 4.0 International. Libraries: scikit-learn, SHAP, FastAPI, pandas, trimesh, React, three.js, React Three Fiber and drei.</p>
+
+</body>
+</html>
