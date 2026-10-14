@@ -4,6 +4,9 @@ Interactive 3D cardiovascular risk visualisation: predicts overall CAD and LAD /
 stenosis from clinical data and maps vessel-level risk onto a 3D heart.
 Multimodal AI Hackathon 2026, Track A.
 
+**Demo video:** [https://www.youtube.com/watch?v=gSVCsCLPsU4](https://www.youtube.com/watch?v=gSVCsCLPsU4)  
+**Documentation:** [docs/CardioLens_Documentation.pdf](docs/CardioLens_Documentation.pdf)
+
 > **Decision support / educational use only.** Not a substitute for formal diagnostic imaging.
 
 ## Structure (Plan or Workflow of the project made by claude)
@@ -120,6 +123,9 @@ Sample patients were part of the training data, so their predictions are more co
 The six-page project documentation (dataset and preprocessing, models and evaluation, explainability,
 3D pipeline, dashboard and API, usage, limitations) is at `docs/CardioLens_Documentation.pdf`,
 with a Markdown version at `docs/documentation.md`.
+
+A walkthrough of the system (feature input, 3D interactions, technical implementation) is on
+YouTube: https://www.youtube.com/watch?v=gSVCsCLPsU4
 
 ## Using the app
 

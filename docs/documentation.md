@@ -4,7 +4,7 @@ Interactive 3D cardiovascular risk visualisation and prediction. Multimodal AI H
 
 **Author:** Jayak Chatterjee, solo entry  
 **Repository:** https://github.com/jayakchatterjee06-bot/CardioLens  
-**Demo video:** [YouTube link]  
+**Demo video:** [youtube.com/watch?v=gSVCsCLPsU4](https://www.youtube.com/watch?v=gSVCsCLPsU4)  
 **PDF version:** [CardioLens_Documentation.pdf](CardioLens_Documentation.pdf)
 
 ## 1. Overview
